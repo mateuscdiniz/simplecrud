@@ -51,8 +51,8 @@ func createConnection() *sql.DB {
 	return db
 }
 
-// CreateUser create a user in the postgres db
-func CreateUser(w http.ResponseWriter, r *http.Request) {
+// CreateJob create a job in the postgres db
+func CreateJob(w http.ResponseWriter, r *http.Request) {
 	// set the header to content type x-www-form-urlencoded
 	// Allow all origin to handle cors issue
 	w.Header().Set("Context-Type", "application/x-www-form-urlencoded")
@@ -60,34 +60,34 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Methods", "POST")
 	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 
-	// create an empty user of type models.User
-	var user models.User
+	// create an empty job of type models.Job
+	var job models.Job
 
-	// decode the json request to user
-	err := json.NewDecoder(r.Body).Decode(&user)
+	// decode the json request to job
+	err := json.NewDecoder(r.Body).Decode(&job)
 
 	if err != nil {
 		log.Fatalf("Unable to decode the request body.  %v", err)
 	}
 
-	// call insert user function and pass the user
-	insertID := insertUser(user)
+	// call insert job function and pass the job
+	insertID := insertJob(job)
 
 	// format a response object
 	res := response{
 		ID:      insertID,
-		Message: "User created successfully",
+		Message: "Job created successfully",
 	}
 
 	// send the response
 	json.NewEncoder(w).Encode(res)
 }
 
-// GetUser will return a single user by its id
-func GetUser(w http.ResponseWriter, r *http.Request) {
+// GetJob will return a single Job by its id
+func GetJob(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Context-Type", "application/x-www-form-urlencoded")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
-	// get the userid from the request params, key is "id"
+	// get the jobid from the request params, key is "id"
 	params := mux.Vars(r)
 
 	// convert the id type from string to int
@@ -97,41 +97,41 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 		log.Fatalf("Unable to convert the string into int.  %v", err)
 	}
 
-	// call the getUser function with user id to retrieve a single user
-	user, err := getUser(int64(id))
+	// call the getJob function with job id to retrieve a single job
+	job, err := getJob(int64(id))
 
 	if err != nil {
-		log.Fatalf("Unable to get user. %v", err)
+		log.Fatalf("Unable to get job. %v", err)
 	}
 
 	// send the response
-	json.NewEncoder(w).Encode(user)
+	json.NewEncoder(w).Encode(job)
 }
 
-// GetAllUser will return all the users
-func GetAllUser(w http.ResponseWriter, r *http.Request) {
+// GetAllJob will return all the jobs
+func GetAllJobs(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Context-Type", "application/x-www-form-urlencoded")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
-	// get all the users in the db
-	users, err := getAllUsers()
+	// get all the jobs in the db
+	jobs, err := getAllJobs()
 
 	if err != nil {
-		log.Fatalf("Unable to get all user. %v", err)
+		log.Fatalf("Unable to get all job. %v", err)
 	}
 
-	// send all the users as response
-	json.NewEncoder(w).Encode(users)
+	// send all the jobs as response
+	json.NewEncoder(w).Encode(jobs)
 }
 
-// UpdateUser update user's detail in the postgres db
-func UpdateUser(w http.ResponseWriter, r *http.Request) {
+// UpdateJob update job's detail in the postgres db
+func UpdateJob(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/x-www-form-urlencoded")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Methods", "PUT")
 	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 
-	// get the userid from the request params, key is "id"
+	// get the jobid from the request params, key is "id"
 	params := mux.Vars(r)
 
 	// convert the id type from string to int
@@ -141,21 +141,21 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 		log.Fatalf("Unable to convert the string into int.  %v", err)
 	}
 
-	// create an empty user of type models.User
-	var user models.User
+	// create an empty job of type models.Job
+	var job models.Job
 
-	// decode the json request to user
-	err = json.NewDecoder(r.Body).Decode(&user)
+	// decode the json request to job
+	err = json.NewDecoder(r.Body).Decode(&job)
 
 	if err != nil {
 		log.Fatalf("Unable to decode the request body.  %v", err)
 	}
 
-	// call update user to update the user
-	updatedRows := updateUser(int64(id), user)
+	// call update job to update the job
+	updatedRows := updateJob(int64(id), job)
 
 	// format the message string
-	msg := fmt.Sprintf("User updated successfully. Total rows/record affected %v", updatedRows)
+	msg := fmt.Sprintf("Job updated successfully. Total rows/record affected %v", updatedRows)
 
 	// format the response message
 	res := response{
@@ -167,15 +167,15 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(res)
 }
 
-// DeleteUser delete user's detail in the postgres db
-func DeleteUser(w http.ResponseWriter, r *http.Request) {
+// DeleteJob delete job's detail in the postgres db
+func DeleteJob(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Context-Type", "application/x-www-form-urlencoded")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Methods", "DELETE")
 	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 
-	// get the userid from the request params, key is "id"
+	// get the jobid from the request params, key is "id"
 	params := mux.Vars(r)
 
 	// convert the id in string to int
@@ -185,11 +185,11 @@ func DeleteUser(w http.ResponseWriter, r *http.Request) {
 		log.Fatalf("Unable to convert the string into int.  %v", err)
 	}
 
-	// call the deleteUser, convert the int to int64
-	deletedRows := deleteUser(int64(id))
+	// call the deleteJob, convert the int to int64
+	deletedRows := deleteJob(int64(id))
 
 	// format the message string
-	msg := fmt.Sprintf("User updated successfully. Total rows/record affected %v", deletedRows)
+	msg := fmt.Sprintf("Job updated successfully. Total rows/record affected %v", deletedRows)
 
 	// format the reponse message
 	res := response{
@@ -202,8 +202,8 @@ func DeleteUser(w http.ResponseWriter, r *http.Request) {
 }
 
 //------------------------- handler functions ----------------
-// insert one user in the DB
-func insertUser(user models.User) int64 {
+// insert one job in the DB
+func insertJob(job models.Job) int64 {
 
 	// create the postgres db connection
 	db := createConnection()
@@ -212,15 +212,15 @@ func insertUser(user models.User) int64 {
 	defer db.Close()
 
 	// create the insert sql query
-	// returning userid will return the id of the inserted user
-	sqlStatement := `INSERT INTO users (name, location, age) VALUES ($1, $2, $3) RETURNING userid`
+	// returning jobid will return the id of the inserted job
+	sqlStatement := `INSERT INTO jobs (name) VALUES ($1) RETURNING jobid`
 
 	// the inserted id will store in this id
 	var id int64
 
 	// execute the sql statement
 	// Scan function will save the insert id in the id
-	err := db.QueryRow(sqlStatement, user.Name, user.Location, user.Age).Scan(&id)
+	err := db.QueryRow(sqlStatement, job.Name).Scan(&id)
 
 	if err != nil {
 		log.Fatalf("Unable to execute the query. %v", err)
@@ -232,52 +232,52 @@ func insertUser(user models.User) int64 {
 	return id
 }
 
-// get one user from the DB by its userid
-func getUser(id int64) (models.User, error) {
+// get one job from the DB by its jobid
+func getJob(id int64) (models.Job, error) {
 	// create the postgres db connection
 	db := createConnection()
 
 	// close the db connection
 	defer db.Close()
 
-	// create a user of models.User type
-	var user models.User
+	// create a job of models.Job type
+	var job models.Job
 
 	// create the select sql query
-	sqlStatement := `SELECT * FROM users WHERE userid=$1`
+	sqlStatement := `SELECT * FROM jobs WHERE jobid=$1`
 
 	// execute the sql statement
 	row := db.QueryRow(sqlStatement, id)
 
-	// unmarshal the row object to user
-	err := row.Scan(&user.ID, &user.Name, &user.Age, &user.Location)
+	// unmarshal the row object to job
+	err := row.Scan(&job.ID, &job.Name)
 
 	switch err {
 	case sql.ErrNoRows:
 		fmt.Println("No rows were returned!")
-		return user, nil
+		return job, nil
 	case nil:
-		return user, nil
+		return job, nil
 	default:
 		log.Fatalf("Unable to scan the row. %v", err)
 	}
 
-	// return empty user on error
-	return user, err
+	// return empty job on error
+	return job, err
 }
 
-// get one user from the DB by its userid
-func getAllUsers() ([]models.User, error) {
+// get one job from the DB by its jobid
+func getAllJobs() ([]models.Job, error) {
 	// create the postgres db connection
 	db := createConnection()
 
 	// close the db connection
 	defer db.Close()
 
-	var users []models.User
+	var jobs []models.Job
 
 	// create the select sql query
-	sqlStatement := `SELECT * FROM users`
+	sqlStatement := `SELECT * FROM jobs`
 
 	// execute the sql statement
 	rows, err := db.Query(sqlStatement)
@@ -291,26 +291,26 @@ func getAllUsers() ([]models.User, error) {
 
 	// iterate over the rows
 	for rows.Next() {
-		var user models.User
+		var job models.Job
 
-		// unmarshal the row object to user
-		err = rows.Scan(&user.ID, &user.Name, &user.Age, &user.Location)
+		// unmarshal the row object to job
+		err = rows.Scan(&job.ID, &job.Name)
 
 		if err != nil {
 			log.Fatalf("Unable to scan the row. %v", err)
 		}
 
-		// append the user in the users slice
-		users = append(users, user)
+		// append the job in the jobs slice
+		jobs = append(jobs, job)
 
 	}
 
-	// return empty user on error
-	return users, err
+	// return empty job on error
+	return jobs, err
 }
 
-// update user in the DB
-func updateUser(id int64, user models.User) int64 {
+// update job in the DB
+func updateJob(id int64, job models.Job) int64 {
 
 	// create the postgres db connection
 	db := createConnection()
@@ -319,10 +319,10 @@ func updateUser(id int64, user models.User) int64 {
 	defer db.Close()
 
 	// create the update sql query
-	sqlStatement := `UPDATE users SET name=$2, location=$3, age=$4 WHERE userid=$1`
+	sqlStatement := `UPDATE jobs SET name=$2, location=$3, age=$4 WHERE jobid=$1`
 
 	// execute the sql statement
-	res, err := db.Exec(sqlStatement, id, user.Name, user.Location, user.Age)
+	res, err := db.Exec(sqlStatement, id, job.Name)
 
 	if err != nil {
 		log.Fatalf("Unable to execute the query. %v", err)
@@ -340,8 +340,8 @@ func updateUser(id int64, user models.User) int64 {
 	return rowsAffected
 }
 
-// delete user in the DB
-func deleteUser(id int64) int64 {
+// delete job in the DB
+func deleteJob(id int64) int64 {
 
 	// create the postgres db connection
 	db := createConnection()
@@ -350,7 +350,7 @@ func deleteUser(id int64) int64 {
 	defer db.Close()
 
 	// create the delete sql query
-	sqlStatement := `DELETE FROM users WHERE userid=$1`
+	sqlStatement := `DELETE FROM jobs WHERE jobid=$1`
 
 	// execute the sql statement
 	res, err := db.Exec(sqlStatement, id)
