@@ -53,13 +53,6 @@ func createConnection() *sql.DB {
 
 // CreateJob create a job in the postgres db
 func CreateJob(w http.ResponseWriter, r *http.Request) {
-	// set the header to content type x-www-form-urlencoded
-	// Allow all origin to handle cors issue
-	w.Header().Set("Context-Type", "application/x-www-form-urlencoded")
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Access-Control-Allow-Methods", "POST")
-	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
-
 	// create an empty job of type models.Job
 	var job models.Job
 
@@ -67,7 +60,8 @@ func CreateJob(w http.ResponseWriter, r *http.Request) {
 	err := json.NewDecoder(r.Body).Decode(&job)
 
 	if err != nil {
-		log.Fatalf("Unable to decode the request body.  %v", err)
+		http.Error(w, http.StatusText(http.StatusInternalServerError),
+			http.StatusInternalServerError)
 	}
 
 	// call insert job function and pass the job
@@ -85,8 +79,7 @@ func CreateJob(w http.ResponseWriter, r *http.Request) {
 
 // GetJob will return a single Job by its id
 func GetJob(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Context-Type", "application/x-www-form-urlencoded")
-	w.Header().Set("Access-Control-Allow-Origin", "*")
+
 	// get the jobid from the request params, key is "id"
 	params := mux.Vars(r)
 
@@ -94,14 +87,16 @@ func GetJob(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(params["id"])
 
 	if err != nil {
-		log.Fatalf("Unable to convert the string into int.  %v", err)
+		http.Error(w, http.StatusText(http.StatusInternalServerError),
+			http.StatusInternalServerError)
 	}
 
 	// call the getJob function with job id to retrieve a single job
 	job, err := getJob(int64(id))
 
 	if err != nil {
-		log.Fatalf("Unable to get job. %v", err)
+		http.Error(w, http.StatusText(http.StatusInternalServerError),
+			http.StatusInternalServerError)
 	}
 
 	// send the response
@@ -110,13 +105,13 @@ func GetJob(w http.ResponseWriter, r *http.Request) {
 
 // GetAllJob will return all the jobs
 func GetAllJobs(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Context-Type", "application/x-www-form-urlencoded")
-	w.Header().Set("Access-Control-Allow-Origin", "*")
+
 	// get all the jobs in the db
 	jobs, err := getAllJobs()
 
 	if err != nil {
-		log.Fatalf("Unable to get all job. %v", err)
+		http.Error(w, http.StatusText(http.StatusInternalServerError),
+			http.StatusInternalServerError)
 	}
 
 	// send all the jobs as response
@@ -126,11 +121,6 @@ func GetAllJobs(w http.ResponseWriter, r *http.Request) {
 // UpdateJob update job's detail in the postgres db
 func UpdateJob(w http.ResponseWriter, r *http.Request) {
 
-	w.Header().Set("Content-Type", "application/x-www-form-urlencoded")
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Access-Control-Allow-Methods", "PUT")
-	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
-
 	// get the jobid from the request params, key is "id"
 	params := mux.Vars(r)
 
@@ -138,7 +128,8 @@ func UpdateJob(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(params["id"])
 
 	if err != nil {
-		log.Fatalf("Unable to convert the string into int.  %v", err)
+		http.Error(w, http.StatusText(http.StatusInternalServerError),
+			http.StatusInternalServerError)
 	}
 
 	// create an empty job of type models.Job
@@ -148,7 +139,8 @@ func UpdateJob(w http.ResponseWriter, r *http.Request) {
 	err = json.NewDecoder(r.Body).Decode(&job)
 
 	if err != nil {
-		log.Fatalf("Unable to decode the request body.  %v", err)
+		http.Error(w, http.StatusText(http.StatusInternalServerError),
+			http.StatusInternalServerError)
 	}
 
 	// call update job to update the job
@@ -170,11 +162,6 @@ func UpdateJob(w http.ResponseWriter, r *http.Request) {
 // DeleteJob delete job's detail in the postgres db
 func DeleteJob(w http.ResponseWriter, r *http.Request) {
 
-	w.Header().Set("Context-Type", "application/x-www-form-urlencoded")
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Access-Control-Allow-Methods", "DELETE")
-	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
-
 	// get the jobid from the request params, key is "id"
 	params := mux.Vars(r)
 
@@ -182,7 +169,8 @@ func DeleteJob(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(params["id"])
 
 	if err != nil {
-		log.Fatalf("Unable to convert the string into int.  %v", err)
+		http.Error(w, http.StatusText(http.StatusInternalServerError),
+			http.StatusInternalServerError)
 	}
 
 	// call the deleteJob, convert the int to int64
